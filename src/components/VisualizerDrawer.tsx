@@ -15,6 +15,8 @@ export default function VisualizerDrawer({ plot, isOpen, onClose, onEnquire }: V
 
   if (!isOpen || !plot) return null;
 
+  const isDubai = plot.id.startsWith('Plot #H-') || plot.id.startsWith('Plot #P-') || plot.id.startsWith('Plot #B-');
+
   // Derive setback values dynamically
   const isOversized = plot.width >= 60;
   const frontSetback = isOversized ? 18 : 15;
@@ -205,7 +207,7 @@ export default function VisualizerDrawer({ plot, isOpen, onClose, onEnquire }: V
 
             {/* Static orientation compass direction text helper overrides rotate transforms */}
             <div className="absolute bottom-3 left-4 text-[10px] font-mono text-[#d4c5ad]">
-              Interactive Rotation Matrix: <span className="text-[#ffc02c] font-bold">Vastu {orientation} Facing</span>
+              Interactive Rotation Matrix: <span className="text-[#ffc02c] font-bold">{isDubai ? `Scenic ${orientation} Orientation` : `Vastu ${orientation} Facing`}</span>
             </div>
           </div>
 
@@ -224,8 +226,8 @@ export default function VisualizerDrawer({ plot, isOpen, onClose, onEnquire }: V
                 <span className="font-mono text-xs font-semibold text-white">4 Levels max height</span>
               </div>
               <div>
-                <span className="block text-[10.5px] uppercase tracking-wide text-[#9E9A90]">Vastu Class</span>
-                <span className="font-mono text-xs font-semibold text-white">Uchha Entrance Level</span>
+                <span className="block text-[10.5px] uppercase tracking-wide text-[#9E9A90]">{isDubai ? 'Zoning Class' : 'Vastu Class'}</span>
+                <span className="font-mono text-xs font-semibold text-white">{isDubai ? 'International Estate' : 'Uchha Entrance Level'}</span>
               </div>
               <div>
                 <span className="block text-[10.5px] uppercase tracking-wide text-[#9E9A90]">Compound Clearance</span>
@@ -233,7 +235,9 @@ export default function VisualizerDrawer({ plot, isOpen, onClose, onEnquire }: V
               </div>
             </div>
             <p className="border-t border-white/5 pt-3 leading-relaxed text-[#9E9A90] text-[11px]">
-              Setback rules ensure compliance with local Telangana Town Planning acts. Ideal for securing private setbacks without sacrificing interior premium courtyard volumes.
+              {isDubai 
+                ? 'Setback rules ensure compliance with national UAE Zoning & master planning guidelines. Ideal for securing private setbacks without sacrificing coastal panoramic views.'
+                : 'Setback rules ensure compliance with local Telangana Town Planning acts. Ideal for securing private setbacks without sacrificing interior premium courtyard volumes.'}
             </p>
           </div>
         </div>

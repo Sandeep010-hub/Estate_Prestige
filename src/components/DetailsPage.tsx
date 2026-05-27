@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Ruler, CheckCircle, HelpCircle, FileText, ChevronRight, Coins } from 'lucide-react';
+import { MapPin, Ruler, CheckCircle, HelpCircle, FileText, ChevronRight, Coins, Compass, Sparkles, Lock } from 'lucide-react';
 import { Property, Plot } from '../types';
 import { plotsData, defaultPlots } from '../data';
+import PanoramaViewer from './PanoramaViewer';
 
 interface DetailsPageProps {
   property: Property;
@@ -12,8 +13,10 @@ interface DetailsPageProps {
 export default function DetailsPage({ property, onPlotSelect, onEnquirePlot }: DetailsPageProps) {
   // Grab the plots for this specific property or fallback to defaults
   const plots = plotsData[property.id] || defaultPlots;
+  const isDubai = property.location.toLowerCase().includes('dubai');
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [selectedPlot, setSelectedPlot] = useState<Plot | null>(null);
+  const [isPanoramaOpen, setIsPanoramaOpen] = useState(false);
 
   // Initialize selected plot once plots list loads
   useEffect(() => {
@@ -38,7 +41,7 @@ export default function DetailsPage({ property, onPlotSelect, onEnquirePlot }: D
         <div className="flex items-center gap-1.5 text-xs text-[#9E9A90] uppercase tracking-wider mb-8 text-left">
           <span>Properties</span>
           <ChevronRight className="w-3 h-3" />
-          <span>Hyderabad Sectors</span>
+          <span>{isDubai ? 'Dubai Estates' : 'Hyderabad Sectors'}</span>
           <ChevronRight className="w-3 h-3" />
           <span className="text-[#ffc02c]">{property.name}</span>
         </div>
@@ -189,60 +192,94 @@ export default function DetailsPage({ property, onPlotSelect, onEnquirePlot }: D
               </div>
 
               {/* Dynamically Selected Plot Metadata Card */}
-              {selectedPlot && (
-                <div className="mt-8 bg-[#090e1c] p-6 rounded-xl border border-white/5 space-y-4 fade-up">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="bg-[#ffc02c]/10 text-[#ffc02c] text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded">
-                        {selectedPlot.id}
+              {selectedPlot && (() => {
+                const isPremium = selectedPlot.price >= 150000000 || (isDubai && selectedPlot.price >= 18000000);
+                return (
+                  <div className="mt-8 bg-[#090e1c] p-6 rounded-xl border border-white/5 space-y-4 fade-up">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="bg-[#ffc02c]/10 text-[#ffc02c] text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded">
+                            {selectedPlot.id}
+                          </span>
+                          {isPremium && (
+                            <span className="bg-gradient-to-r from-amber-500/20 to-yellow-500/10 text-amber-300 text-[8.5px] uppercase tracking-widest font-extrabold px-2.5 py-0.5 rounded border border-amber-500/30 flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5 text-[#ffc02c] animate-pulse" />
+                              Signature Plot
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-sans text-base font-semibold text-white mt-2">
+                          {selectedPlot.area} Residential Plot
+                        </h4>
+                      </div>
+                      <span className="font-mono text-xs md:text-sm font-bold text-[#ffc02c]">
+                        {isDubai 
+                          ? `AED ${(selectedPlot.price / 1000000).toFixed(1)}M`
+                          : `₹${(selectedPlot.price / 10000000).toFixed(2)} Cr`}
                       </span>
-                      <h4 className="font-sans text-base font-semibold text-white mt-2">
-                        {selectedPlot.area} Residential Plot
-                      </h4>
                     </div>
-                    <span className="font-mono text-xs md:text-sm font-bold text-[#ffc02c]">
-                      ₹{(selectedPlot.price / 10000000).toFixed(2)} Cr
-                    </span>
-                  </div>
 
-                  <p className="font-sans text-xs text-[#9E9A90] leading-relaxed">
-                    {selectedPlot.notes}
-                  </p>
+                    <p className="font-sans text-xs text-[#9E9A90] leading-relaxed">
+                      {selectedPlot.notes}
+                    </p>
 
-                  {/* Dimension Blueprint Visualizer Box */}
-                  <div className="bg-[#121626] p-4 rounded-lg border border-white/5 space-y-3">
-                    <div className="flex justify-between text-[11px] font-sans">
-                      <span className="text-[#9E9A90]">Zoning Guidelines:</span>
-                      <span className="text-white font-mono">{selectedPlot.maxFar}</span>
+                    {/* Dimension Blueprint Visualizer Box */}
+                    <div className="bg-[#121626] p-4 rounded-lg border border-white/5 space-y-3">
+                      <div className="flex justify-between text-[11px] font-sans">
+                        <span className="text-[#9E9A90]">Zoning Guidelines:</span>
+                        <span className="text-white font-mono">{selectedPlot.maxFar}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] font-sans">
+                        <span className="text-[#9E9A90]">Road Setbacks:</span>
+                        <span className="text-white font-mono">{selectedPlot.setbacks}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] font-sans">
+                        <span className="text-[#9E9A90]">Cardinal Face:</span>
+                        <span className="text-[#ffc02c] font-mono">Vastu East Facing</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-[11px] font-sans">
-                      <span className="text-[#9E9A90]">Road Setbacks:</span>
-                      <span className="text-white font-mono">{selectedPlot.setbacks}</span>
-                    </div>
-                    <div className="flex justify-between text-[11px] font-sans">
-                      <span className="text-[#9E9A90]">Cardinal Face:</span>
-                      <span className="text-[#ffc02c] font-mono">Vastu East Facing</span>
+
+                    {/* Primary Trigger Buttons */}
+                    <div className="pt-2 flex flex-col gap-3">
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => onEnquirePlot(selectedPlot)}
+                          className="flex-1 bg-[#ffc02c] hover:bg-[#C9841C] text-[#402d00] py-3 rounded-lg font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
+                        >
+                          Request Callback
+                        </button>
+                        <button
+                          onClick={() => onPlotSelect(selectedPlot)}
+                          className="bg-[#0e1322] border border-[#ffc02c]/30 text-[#ffc02c] hover:bg-[#ffc02c]/5 px-4 rounded-lg font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-200 flex items-center justify-center cursor-pointer"
+                          title="View blueprint details"
+                        >
+                          Blueprint
+                        </button>
+                      </div>
+
+                      {/* 360 Panorama Feature trigger button */}
+                      {isPremium ? (
+                        <button
+                          onClick={() => setIsPanoramaOpen(true)}
+                          className="w-full bg-gradient-to-r from-amber-600/20 via-yellow-600/10 to-amber-600/20 hover:from-amber-600/30 hover:to-amber-600/30 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-sans text-xs font-bold uppercase tracking-widest py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group shadow-lg shadow-amber-500/5 cursor-pointer"
+                        >
+                          <Compass className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-500" />
+                          <span>Immersive 360° Panorama Site View</span>
+                        </button>
+                      ) : (
+                        <div 
+                          className="w-full bg-white/5 border border-white/5 text-[#9E9A90]/75 font-sans text-[10.5px] uppercase tracking-wider py-2.5 rounded-lg flex items-center justify-center gap-2 select-none opacity-80"
+                          title="Exclusively reserved for Signature Plot tiers"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-[#9E9A90]/60" />
+                          <span>360° Site View Locked | Premium Range Exclusive</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  {/* Primary Trigger Buttons */}
-                  <div className="pt-2 flex gap-4">
-                    <button
-                      onClick={() => onEnquirePlot(selectedPlot)}
-                      className="flex-1 bg-[#ffc02c] hover:bg-[#C9841C] text-[#402d00] py-3 rounded-lg font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-sm"
-                    >
-                      Request Callback
-                    </button>
-                    <button
-                      onClick={() => onPlotSelect(selectedPlot)}
-                      className="bg-[#0e1322] border border-[#ffc02c]/30 text-[#ffc02c] hover:bg-[#ffc02c]/5 px-4 rounded-lg font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-200 flex items-center justify-center"
-                      title="View blueprint details"
-                    >
-                      Blueprint
-                    </button>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
 
             {/* Side Map Indicator Panel */}
@@ -261,13 +298,26 @@ export default function DetailsPage({ property, onPlotSelect, onEnquirePlot }: D
                 </div>
               </div>
               <p className="font-sans text-[11px] leading-relaxed text-[#9E9A90]">
-                Situated directly near Outer Ring Road exits, with direct links into prime IT centers, financial nodes, and Hyderabad airport.
+                {isDubai 
+                  ? 'Situated directly near primary highway corridors with direct links into Downtown Dubai, financial centers, beach nodes, and DXB Airport.'
+                  : 'Situated directly near Outer Ring Road exits, with direct links into prime IT centers, financial nodes, and Hyderabad airport.'}
               </p>
             </div>
           </div>
 
         </div>
       </div>
+
+      {/* 360 degree Panorama Viewer modal */}
+      {selectedPlot && (
+        <PanoramaViewer
+          isOpen={isPanoramaOpen}
+          onClose={() => setIsPanoramaOpen(false)}
+          plot={selectedPlot}
+          propertyName={property.name}
+          isDubai={isDubai}
+        />
+      )}
     </main>
   );
 }
