@@ -1,0 +1,6 @@
+{
+  "name": "Estate Prestige",
+  "description": "Curating the finest land investment opportunities in Hyderabad and offering customizable architectural design and builder services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
